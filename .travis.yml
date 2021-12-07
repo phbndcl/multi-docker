@@ -1,0 +1,23 @@
+sudo: required
+language: generic
+
+services:
+  - docker
+
+before_install:
+  - docker build -t phb95/react-test -f ./client/Dockerfile.dev ./client
+script:
+  - docker run -e CI=true phb95/react-test npm run test -- --coverage
+after_success:
+  - docker build -t phb95/multi-client ./client
+  - docker build -t phb95/multi-nginx ./nginx
+  - docker build -t phb95/multi-server ./server
+  - docker build -t phb95/multi-worker ./worker
+ # Login Details of DOCKER
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+ # Take those images & push them to docker hub.
+  - docker push phb95/multi-client
+  - docker push phb95/multi-nginx
+  - docker push phb95/multi-server
+  - docker push phb95/multi-worker
+  
