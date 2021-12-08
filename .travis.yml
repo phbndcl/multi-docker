@@ -6,16 +6,18 @@ services:
 
 before_install:
   - docker build -t phb95/react-test -f ./client/Dockerfile.dev ./client
+
 script:
-  - docker run -e CI=true phb95/react-test npm run test -- --coverage
+  - docker run -e CI=true stephengrider/react-test npm test
+
 after_success:
   - docker build -t phb95/multi-client ./client
   - docker build -t phb95/multi-nginx ./nginx
   - docker build -t phb95/multi-server ./server
   - docker build -t phb95/multi-worker ./worker
- # Login Details of DOCKER
+  # Log in to the docker CLI
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
- # Take those images & push them to docker hub.
+  # Take those images and push them to docker hub
   - docker push phb95/multi-client
   - docker push phb95/multi-nginx
   - docker push phb95/multi-server
@@ -32,4 +34,3 @@ deploy:
     branch: master
   access_key_id: $AWS_ACCESS_KEY
   secret_access_key: $AWS_SECRET_KEY
-  
